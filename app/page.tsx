@@ -8,14 +8,14 @@ export default function Home() {
 		null
 	);
 
+	// Model from : https://huggingface.co/mistralai/Mistral-7B-v0.1?text=My+name+is+Thomas+and+my+main+goal+is+to+help+you%2C+the+home+cook+or+baker.++I+have+a+passion+for+cooking+this+is+so+natural+for+me%2C+I+don%E2%80%99t+have+to+really+think+about+it.++Some+people+can+sing+thua+s
 	async function query(data: { [key: string]: any }): Promise<any> {
 		try {
 			const response = await fetch(
 				"https://api-inference.huggingface.co/models/mistralai/Mistral-7B-v0.1",
 				{
 					headers: {
-						Authorization:
-							"Bearer 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",
+						Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
 						"Content-Type": "application/json",
 					},
 					method: "POST",
@@ -34,13 +34,16 @@ export default function Home() {
 			inputs: userInput,
 		});
 		const aiSuggestion = huggingFaceresponse[0]?.generated_text;
-		setSuggestion(aiSuggestion);
+		console.log(aiSuggestion);
+		const newAiSuggestion = aiSuggestion?.replace(/\n/g, "");
+
+		setSuggestion(newAiSuggestion);
 	};
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		const inputText = e.target.value;
 		setUserInput(inputText);
-
+		setSuggestion("");
 		if (typingTimeout) {
 			clearTimeout(typingTimeout);
 		}
@@ -73,22 +76,20 @@ export default function Home() {
 	return (
 		<main className="h-screen w-full">
 			<div className="flex flex-col items-center justify-center h-full px-10">
-				<h1 className="text-xl my-4 font-bold tracking-widest">
+				<h1 className="text-4xl my-10 font-bold tracking-widest bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 text-transparent bg-clip-text">
 					Ai Suggestion
 				</h1>
 				<div className="relative">
 					<textarea
-						className="absolute inset-0 bg-transparent z-0 text-white w-[700px] p-4 outline-none "
+						className="absolute border border-purple-500 rounded-lg inset-0 bg-transparent z-0 text-purple-500 w-[700px] p-4 outline-none "
 						value={userInput}
 						placeholder={suggestion ? suggestion : "Enter text"}
 						onChange={handleInputChange}
 						onKeyDown={handleTabKeyPress}
-					></textarea>
-					<textarea
-						className=" bg-transparent text-gray-500 w-[700px] p-4 outline-none z-50"
-						value={suggestion}
-						readOnly
-					></textarea>
+					/>
+					<p className=" text-gray-500 w-[700px] p-4 outline-none z-50">
+						{suggestion}
+					</p>
 				</div>
 			</div>
 		</main>
